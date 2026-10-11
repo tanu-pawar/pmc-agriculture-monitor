@@ -1,0 +1,1336 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#102d2a">
+
+<title>PMC Agriculture Monitor | Tanu Pawar</title>
+
+<meta name="description" content="Multi-temporal Sentinel-1 SAR agricultural and non-agricultural land classification for Pune Municipal Corporation, Maharashtra.">
+
+<style>
+:root {
+  --dark: #102d2a;
+  --dark2: #19483e;
+  --green: #176b58;
+  --mint: #d9f2e5;
+  --gold: #e4b45b;
+  --paper: #f3f7f4;
+  --white: #ffffff;
+  --ink: #183039;
+  --muted: #657a80;
+  --line: #dce7e1;
+  --shadow: 0 12px 35px rgba(17, 48, 40, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 85px;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  line-height: 1.7;
+}
+
+a {
+  color: var(--green);
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.container {
+  max-width: 1200px;
+  width: 92%;
+  margin: auto;
+}
+
+/* NAVIGATION */
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(16, 45, 42, 0.96);
+  backdrop-filter: blur(12px);
+  color: white;
+  border-bottom: 1px solid #ffffff20;
+}
+
+.nav-inner {
+  max-width: 1200px;
+  width: 92%;
+  margin: auto;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: white;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.logo-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--mint);
+  color: var(--dark);
+  font-size: 23px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.nav-links a {
+  color: #e1eee8;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.nav-links a:hover {
+  color: #a5e8c7;
+}
+
+.nav-button {
+  background: var(--mint);
+  color: var(--dark) !important;
+  padding: 10px 15px;
+  border-radius: 10px;
+  font-weight: 800;
+}
+
+/* HERO */
+
+.hero {
+  background:
+    radial-gradient(circle at 80% 15%, #347a62 0, transparent 35%),
+    linear-gradient(125deg, var(--dark), var(--dark2));
+  color: white;
+  overflow: hidden;
+}
+
+.hero-inner {
+  max-width: 1200px;
+  width: 92%;
+  margin: auto;
+  padding: 78px 0;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 55px;
+  align-items: center;
+}
+
+.eyebrow {
+  color: #b9e7d2;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.hero h1 {
+  font-size: clamp(2.7rem, 5.5vw, 5rem);
+  line-height: 1.04;
+  letter-spacing: -2px;
+  margin: 20px 0;
+}
+
+.hero p {
+  color: #d5e7df;
+  max-width: 650px;
+  font-size: 1.08rem;
+}
+
+.hero-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 11px;
+  padding: 12px 17px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  font-weight: 800;
+  transition: 0.25s;
+}
+
+.button:hover {
+  transform: translateY(-3px);
+}
+
+.button-primary {
+  background: var(--mint);
+  color: var(--dark);
+}
+
+.button-secondary {
+  background: transparent;
+  border-color: #ffffff80;
+  color: white;
+}
+
+.hero-note {
+  font-size: 0.84rem !important;
+  color: #b9d1c7 !important;
+  margin-top: 18px;
+}
+
+/* DECORATIVE MAP */
+
+.preview-card {
+  background: #f8fcf9;
+  color: var(--ink);
+  padding: 20px;
+  border-radius: 23px;
+  box-shadow: 0 25px 70px #061b1740;
+  transform: rotate(1deg);
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.tag {
+  display: inline-block;
+  background: #e1f3e8;
+  color: #226449;
+  border-radius: 30px;
+  padding: 5px 10px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.field-map {
+  height: 260px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 15px;
+  background-color: #dce8d7;
+  background-image:
+    repeating-linear-gradient(
+      0deg, transparent 0 35px, #ffffffa8 36px 38px
+    ),
+    repeating-linear-gradient(
+      90deg, transparent 0 42px, #ffffffa8 43px 45px
+    );
+}
+
+.field {
+  position: absolute;
+  border: 2px solid #ffffffa8;
+  transform: rotate(-17deg);
+  border-radius: 10px;
+  animation: float 6s ease-in-out infinite;
+}
+
+.field1 {
+  left: 7%;
+  top: 10%;
+  width: 31%;
+  height: 38%;
+  background: #24785e;
+}
+
+.field2 {
+  left: 43%;
+  top: 8%;
+  width: 22%;
+  height: 42%;
+  background: #88bd91;
+  animation-delay: 1s;
+}
+
+.field3 {
+  right: 5%;
+  top: 18%;
+  width: 26%;
+  height: 30%;
+  background: #d4b35b;
+  animation-delay: 2s;
+}
+
+.field4 {
+  left: 15%;
+  bottom: 5%;
+  width: 28%;
+  height: 31%;
+  background: #65a37e;
+  animation-delay: 1.5s;
+}
+
+.field5 {
+  right: 13%;
+  bottom: 6%;
+  width: 38%;
+  height: 32%;
+  background: #bad69f;
+  animation-delay: 0.5s;
+}
+
+.map-label {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: white;
+  color: var(--dark);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+@keyframes float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -5px; }
+}
+
+.preview-legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  margin-top: 15px;
+  color: var(--muted);
+}
+
+.swatch {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  margin-right: 5px;
+}
+
+/* GENERAL SECTIONS */
+
+main {
+  padding: 35px 0 65px;
+}
+
+.section {
+  margin: 40px 0;
+  scroll-margin-top: 90px;
+}
+
+.section-heading {
+  margin-bottom: 22px;
+}
+
+.section-label {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.76rem;
+  color: var(--green);
+  font-weight: 900;
+}
+
+h2 {
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  line-height: 1.2;
+  letter-spacing: -0.7px;
+  margin: 7px 0;
+}
+
+.section-description,
+.muted {
+  color: var(--muted);
+}
+
+.card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 19px;
+  padding: 23px;
+  box-shadow: var(--shadow);
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.metric-value {
+  font-size: 2rem;
+  line-height: 1.3;
+  font-weight: 900;
+  letter-spacing: -1px;
+  margin: 8px 0 3px;
+}
+
+.metric-label {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.metric-foot {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+/* LIVE APP */
+
+.app-card {
+  padding: 20px;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 17px;
+}
+
+.app-frame {
+  width: 100%;
+  height: 680px;
+  display: block;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #e8f0eb;
+}
+
+.app-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.button-green {
+  background: var(--green);
+  color: white;
+}
+
+.button-light {
+  color: var(--dark);
+  background: white;
+  border: 1px solid var(--line);
+}
+
+.notice {
+  padding: 14px 16px;
+  margin-top: 16px;
+  background: #fff8e8;
+  border-left: 4px solid var(--gold);
+  border-radius: 10px;
+  color: #645126;
+  font-size: 0.9rem;
+}
+
+/* METHODOLOGY */
+
+.three-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 17px;
+}
+
+.step-number {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  background: #e0f2e7;
+  color: var(--green);
+  border-radius: 12px;
+  font-weight: 900;
+  margin-bottom: 15px;
+}
+
+.card h3 {
+  margin: 0 0 8px;
+}
+
+.card p {
+  margin-top: 8px;
+}
+
+.two-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+/* TABLES */
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 500px;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+th, td {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+th {
+  background: #f5f9f6;
+  color: #516970;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.accuracy-chart {
+  display: grid;
+  gap: 16px;
+  margin: 25px 0;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 155px 1fr 65px;
+  gap: 12px;
+  align-items: center;
+  font-size: 0.88rem;
+}
+
+.bar-track {
+  height: 11px;
+  background: #e9efec;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #176b58, #8bd4a7);
+  border-radius: 20px;
+  transition: width 1.2s ease;
+}
+
+/* FAQ / REFERENCES */
+
+details {
+  border-top: 1px solid var(--line);
+  padding: 14px 0;
+}
+
+details:first-of-type {
+  border-top: 0;
+}
+
+summary {
+  cursor: pointer;
+  font-weight: 800;
+}
+
+details p {
+  color: var(--muted);
+}
+
+.references li {
+  padding: 6px 0;
+  overflow-wrap: anywhere;
+}
+
+/* FOOTER */
+
+footer {
+  background: var(--dark);
+  color: #e0eee7;
+  padding: 32px 0;
+}
+
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+}
+
+footer small {
+  color: #b3c9bf;
+}
+
+.back-top {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  display: none;
+  width: 45px;
+  height: 45px;
+  background: var(--green);
+  color: white;
+  border: 0;
+  border-radius: 13px;
+  font-size: 20px;
+  box-shadow: var(--shadow);
+  z-index: 200;
+}
+
+.back-top.visible {
+  display: block;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+  .hero-inner {
+    grid-template-columns: 1fr;
+    gap: 35px;
+    padding: 55px 0;
+  }
+
+  .preview-card {
+    max-width: 580px;
+    transform: none;
+  }
+
+  .metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .three-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .app-frame {
+    height: 580px;
+  }
+}
+
+@media (max-width: 600px) {
+  .container, .nav-inner, .hero-inner {
+    width: 92%;
+  }
+
+  .hero h1 {
+    font-size: 2.8rem;
+  }
+
+  .two-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics {
+    gap: 10px;
+  }
+
+  .card {
+    padding: 17px;
+  }
+
+  .app-frame {
+    height: 500px;
+  }
+
+  .bar-row {
+    grid-template-columns: 105px 1fr 55px;
+    gap: 8px;
+    font-size: 0.77rem;
+  }
+
+  .metric-value {
+    font-size: 1.65rem;
+  }
+
+  .navbar .container {
+    width: 94%;
+  }
+
+  .logo {
+    font-size: 0.85rem;
+  }
+
+  .nav-button {
+    font-size: 0.78rem;
+    padding: 8px 10px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVIGATION -->
+<div class="navbar">
+  <div class="nav-inner">
+    <a class="logo" href="#home">
+      <span class="logo-icon">⌁</span>
+      <span>PMC Agriculture Monitor</span>
+    </a>
+
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="#live-map">Live Map</a>
+      <a href="#methodology">Methodology</a>
+      <a href="#validation">Validation</a>
+      <a href="#limitations">Limitations</a>
+    </nav>
+
+    <a class="nav-button"
+       href="https://tanu-p-483509.projects.earthengine.app/view/pmc-agriculture-monitor"
+       target="_blank" rel="noopener">
+      Open GEE App ↗
+    </a>
+  </div>
+</div>
+
+<!-- HERO -->
+<header class="hero" id="home">
+  <div class="hero-inner">
+    <div>
+      <div class="eyebrow">M.Sc. Geoinformatics · Advanced Remote Sensing</div>
+
+      <h1>Reading the landscape through radar.</h1>
+
+      <p>
+        An interactive geospatial project exploring agricultural and
+        non-agricultural land classification in Pune Municipal Corporation
+        using multi-temporal Sentinel-1 SAR imagery for the Kharif 2025 season.
+      </p>
+
+      <div class="hero-buttons">
+        <a class="button button-primary" href="#live-map">
+          Explore Interactive Map ↓
+        </a>
+
+        <a class="button button-secondary" href="#validation">
+          View Validation Results
+        </a>
+      </div>
+
+      <p class="hero-note">
+        Research project · Google Earth Engine · Sentinel-1 SAR
+      </p>
+    </div>
+
+    <div class="preview-card">
+      <div class="preview-header">
+        <strong>Land-cover intelligence</strong>
+        <span class="tag">KHARIF 2025</span>
+      </div>
+
+      <div class="field-map" aria-label="Decorative illustration of land parcels">
+        <div class="field field1"></div>
+        <div class="field field2"></div>
+        <div class="field field3"></div>
+        <div class="field field4"></div>
+        <div class="field field5"></div>
+        <span class="map-label">PMC · Pune, Maharashtra</span>
+      </div>
+
+      <div class="preview-legend">
+        <span><i class="swatch" style="background:#24785e"></i>Agricultural</span>
+        <span><i class="swatch" style="background:#d4b35b"></i>Non-agricultural</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- PROJECT METRICS -->
+  <section class="section metrics reveal" aria-label="Project metrics">
+
+    <div class="card">
+      <div class="metric-label">Overall accuracy</div>
+      <div class="metric-value count-up" data-target="83.06" data-decimals="2">0%</div>
+      <div class="metric-foot">Independent validation</div>
+    </div>
+
+    <div class="card">
+      <div class="metric-label">Reference polygons</div>
+      <div class="metric-value count-up" data-target="70" data-decimals="0">0</div>
+      <div class="metric-foot">30 agricultural · 40 non-agricultural</div>
+    </div>
+
+    <div class="card">
+      <div class="metric-label">Validation samples</div>
+      <div class="metric-value count-up" data-target="124" data-decimals="0">0</div>
+      <div class="metric-foot">Pixel samples from held-out polygons</div>
+    </div>
+
+    <div class="card">
+      <div class="metric-label">Sentinel-1 scenes</div>
+      <div class="metric-value count-up" data-target="13" data-decimals="0">0</div>
+      <div class="metric-foot">Across three seasonal periods</div>
+    </div>
+
+  </section>
+
+  <!-- LIVE GEE APP -->
+  <section class="section reveal" id="live-map">
+    <div class="section-heading">
+      <div class="section-label">01 / Explore</div>
+      <h2>Interactive classification dashboard</h2>
+      <p class="section-description">
+        Explore the published Google Earth Engine application directly below.
+        For the best experience, you can also open it in a separate tab.
+      </p>
+    </div>
+
+    <div class="card app-card">
+      <div class="app-header">
+        <div>
+          <h3>PMC Agriculture Monitor</h3>
+          <span class="muted">Google Earth Engine · Published web app</span>
+        </div>
+        <span class="tag">LIVE APPLICATION</span>
+      </div>
+
+      <iframe
+        id="geeFrame"
+        class="app-frame"
+        src="https://tanu-p-483509.projects.earthengine.app/view/pmc-agriculture-monitor"
+        title="PMC Agriculture Monitor Google Earth Engine application"
+        loading="lazy"
+        allow="fullscreen">
+      </iframe>
+
+      <div class="app-actions">
+        <a class="button button-green"
+           href="https://tanu-p-483509.projects.earthengine.app/view/pmc-agriculture-monitor"
+           target="_blank" rel="noopener">
+          Open GEE App in New Tab ↗
+        </a>
+
+        <button class="button button-light" id="reloadButton" type="button">
+          Reload Map ↻
+        </button>
+
+        <button class="button button-light" id="fullscreenButton" type="button">
+          Full-Screen Map ⛶
+        </button>
+      </div>
+
+      <div class="notice">
+        <strong>Class legend:</strong>
+        Class 0 = Non-agricultural land.
+        Class 1 = Agricultural land.
+        This is a binary land-classification model, not a crop-species map.
+      </div>
+    </div>
+  </section>
+
+  <!-- METHODOLOGY -->
+  <section class="section reveal" id="methodology">
+    <div class="section-heading">
+      <div class="section-label">02 / Workflow</div>
+      <h2>From radar observations to a land map</h2>
+      <p class="section-description">
+        Multi-temporal radar observations can capture seasonal changes in
+        vegetation and surface conditions, including under most cloud cover.
+      </p>
+    </div>
+
+    <div class="three-grid">
+      <article class="card">
+        <div class="step-number">01</div>
+        <h3>Build the time series</h3>
+        <p>
+          Sentinel-1 GRD C-band SAR observations are filtered by study area,
+          date, acquisition mode, polarization and orbit settings. Early-,
+          mid- and late-season composites represent the Kharif period.
+        </p>
+      </article>
+
+      <article class="card">
+        <div class="step-number">02</div>
+        <h3>Train the model</h3>
+        <p>
+          A Random Forest classifier uses radar-derived predictors and
+          labelled reference polygons to distinguish agricultural from
+          non-agricultural land.
+        </p>
+      </article>
+
+      <article class="card">
+        <div class="step-number">03</div>
+        <h3>Validate the result</h3>
+        <p>
+          Held-out reference polygons provide independent validation samples.
+          Confusion-matrix metrics help assess overall and class-wise
+          classification performance.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <!-- DATA AND RADAR -->
+  <section class="section two-grid reveal">
+    <article class="card">
+      <div class="section-label">Input data</div>
+      <h2>Data and features</h2>
+      <ul>
+        <li>Sentinel-1 GRD C-band SAR imagery</li>
+        <li>VV and VH backscatter polarizations</li>
+        <li>Early-, mid- and late-season composites</li>
+        <li>Reference polygons with class labels</li>
+        <li>Random Forest supervised classification</li>
+      </ul>
+      <p class="muted">
+        The current workflow summary reports 13 Sentinel-1 scenes:
+        4 early-season, 4 mid-season and 5 late-season scenes.
+      </p>
+    </article>
+
+    <article class="card">
+      <div class="section-label">Remote sensing concept</div>
+      <h2>Why use radar?</h2>
+      <p>
+        Synthetic Aperture Radar (SAR) measures microwave energy returned
+        from the Earth's surface. VV and VH backscatter can respond to
+        vegetation structure, surface moisture, roughness and field
+        conditions.
+      </p>
+      <p>
+        Observations from multiple dates can reveal seasonal differences
+        that may help separate broad land classes.
+      </p>
+      <p class="muted">
+        Radar signatures are influenced by multiple environmental factors
+        and do not uniquely identify a crop species.
+      </p>
+    </article>
+  </section>
+
+  <!-- VALIDATION -->
+  <section class="section reveal" id="validation">
+    <div class="section-heading">
+      <div class="section-label">03 / Model performance</div>
+      <h2>Independent validation results</h2>
+      <p class="section-description">
+        The values below are from the current GEE workflow results supplied
+        for this project. Verify them against the final published run.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Class-wise accuracy</h3>
+      <p class="muted">
+        Class 0 = Non-agricultural land · Class 1 = Agricultural land
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Class 0</th>
+              <th>Class 1</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Producer's accuracy</td>
+              <td>88.10%</td>
+              <td>80.49%</td>
+            </tr>
+            <tr>
+              <td>User's accuracy</td>
+              <td>69.81%</td>
+              <td>92.96%</td>
+            </tr>
+            <tr>
+              <td>F1-score</td>
+              <td>0.779</td>
+              <td>0.863</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="accuracy-chart">
+        <div class="bar-row">
+          <span>Overall accuracy</span>
+          <div class="bar-track">
+            <div class="bar-fill" data-value="83.06"></div>
+          </div>
+          <strong>83.06%</strong>
+        </div>
+
+        <div class="bar-row">
+          <span>Producer · Class 0</span>
+          <div class="bar-track">
+            <div class="bar-fill" data-value="88.10"></div>
+          </div>
+          <strong>88.10%</strong>
+        </div>
+
+        <div class="bar-row">
+          <span>Producer · Class 1</span>
+          <div class="bar-track">
+            <div class="bar-fill" data-value="80.49"></div>
+          </div>
+          <strong>80.49%</strong>
+        </div>
+
+        <div class="bar-row">
+          <span>User · Class 0</span>
+          <div class="bar-track">
+            <div class="bar-fill" data-value="69.81"></div>
+          </div>
+          <strong>69.81%</strong>
+        </div>
+
+        <div class="bar-row">
+          <span>User · Class 1</span>
+          <div class="bar-track">
+            <div class="bar-fill" data-value="92.96"></div>
+          </div>
+          <strong>92.96%</strong>
+        </div>
+      </div>
+
+      <h3 style="margin-top:30px">Confusion matrix</h3>
+      <p class="muted">
+        Rows represent reference classes; columns represent predicted classes.
+        Class order is 0, then 1.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Reference / Predicted</th>
+              <th>Class 0</th>
+              <th>Class 1</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Class 0 · Non-agricultural</td>
+              <td><strong>37</strong></td>
+              <td>5</td>
+            </tr>
+            <tr>
+              <td>Class 1 · Agricultural</td>
+              <td>16</td>
+              <td><strong>66</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="two-grid" style="margin-top:22px">
+        <div>
+          <h3>What do the results mean?</h3>
+          <p>
+            The overall accuracy is 83.06% for the independent validation
+            sample. The agricultural class has higher user's accuracy,
+            while its producer's accuracy is lower. Some reference
+            agricultural samples were therefore missed by the model.
+          </p>
+        </div>
+        <div>
+          <h3>Additional metric</h3>
+          <p>
+            <strong>Cohen's kappa: 0.645</strong>
+          </p>
+          <p>
+            Kappa describes agreement beyond chance under its assumptions.
+            Interpretation should consider reference quality, sample
+            representativeness and spatial dependence.
+          </p>
+        </div>
+      </div>
+
+        </section>
+
+  <!-- LIMITATIONS -->
+  <section class="section two-grid reveal" id="limitations">
+    <article class="card">
+      <div class="section-label">04 / Interpretation</div>
+      <h2>Limitations</h2>
+      <ul>
+        <li>Mixed pixels and fragmented agricultural fields.</li>
+        <li>Backscatter variations due to moisture, roughness and crop structure.</li>
+        <li>Potential errors in reference labels or polygon boundaries.</li>
+        <li>Spatial dependence between pixels from the same field.</li>
+        <li>Mapped-area estimates may be affected by classification errors.</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <div class="section-label">Project notes</div>
+      <h2>Frequently asked questions</h2>
+
+      <details>
+        <summary>Does the map identify individual crops?</summary>
+        <p>
+          No. The current model separates agricultural from non-agricultural
+          land. Crop-specific mapping would require suitable crop labels,
+          a multi-class model and independent validation.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why use multiple dates?</summary>
+        <p>
+          Agricultural and surface conditions change through the growing
+          season. Multi-date observations can capture differences that
+          may not be visible in a single image.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can mapped area be treated as ground truth?</summary>
+        <p>
+          No. Check the study boundary, pixel scale, masks, class values
+          and classification errors before reporting area totals.
+        </p>
+      </details>
+
+      <details>
+        <summary>What should be checked before submission?</summary>
+        <p>
+          Verify the boundary, season, radar filters, class labels,
+          training-validation split, accuracy results, area calculations
+          and source citations.
+        </p>
+      </details>
+    </article>
+  </section>
+
+  <!-- REFERENCES -->
+  <section class="section reveal" id="references">
+    <div class="card">
+      <div class="section-label">05 / Sources</div>
+      <h2>References and data credits</h2>
+
+      <ol class="references">
+        <li>
+          <a href="https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S1_GRD"
+             target="_blank" rel="noopener">
+            Google Earth Engine — Sentinel-1 GRD data catalogue
+          </a>
+        </li>
+        <li>
+          <a href="https://developers.google.com/earth-engine/guides/classification"
+             target="_blank" rel="noopener">
+            Google Earth Engine — Supervised classification guide
+          </a>
+        </li>
+        <li>
+          Veloso et al. (2017).
+          <a href="https://doi.org/10.1016/j.rse.2017.07.015"
+             target="_blank" rel="noopener">
+            Understanding the temporal behavior of crops using Sentinel-1
+            and Sentinel-2-like data.
+          </a>
+        </li>
+        <li>
+          Bargiel (2017).
+          <a href="https://doi.org/10.1016/j.rse.2017.06.022"
+             target="_blank" rel="noopener">
+            A new method for crop classification combining time series of
+            radar images and crop phenology information.
+          </a>
+        </li>
+        <li>
+          Xu et al. (2019).
+          <a href="https://doi.org/10.3390/rs11010053"
+             target="_blank" rel="noopener">
+            Crop Classification Based on Temporal Information Using
+            Sentinel-1 SAR Time-Series Data.
+          </a>
+        </li>
+      </ol>
+
+      <hr style="border:0;border-top:1px solid var(--line);margin:25px 0">
+
+      <p><strong>Student:</strong> Tanu Pawar</p>
+      <p><strong>Programme:</strong> M.Sc. Geoinformatics</p>
+      <p><strong>Subject:</strong> Advanced Remote Sensing</p>
+      <p><strong>Study area:</strong> Pune Municipal Corporation, Maharashtra</p>
+      <p><strong>Analysis period:</strong> Kharif 2025</p>
+
+      <p class="muted">
+        This website presents a student research prototype. All mapped
+        outputs, area estimates, metrics and interpretations should be
+        verified against the final analysis.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container footer-inner">
+    <div>
+      <strong>PMC Agriculture Monitor</strong><br>
+      <small>Multi-temporal Sentinel-1 SAR · Kharif 2025</small>
+    </div>
+
+    <div>
+      <small>
+        Designed for the Advanced Remote Sensing project · 2026
+      </small>
+    </div>
+  </div>
+</footer>
+
+<button class="back-top" id="backTop" aria-label="Back to top">↑</button>
+
+<script>
+/* Your published Google Earth Engine app */
+const GEE_APP_URL =
+  "https://tanu-p-483509.projects.earthengine.app/view/pmc-agriculture-monitor";
+
+/* Reload the embedded GEE app */
+document.getElementById("reloadButton").addEventListener("click", function () {
+  const frame = document.getElementById("geeFrame");
+  frame.src = "about:blank";
+
+  setTimeout(function () {
+    frame.src = GEE_APP_URL;
+  }, 150);
+});
+
+/* Full-screen map */
+document.getElementById("fullscreenButton").addEventListener("click", async function () {
+  const frame = document.getElementById("geeFrame");
+
+  try {
+    if (frame.requestFullscreen) {
+      await frame.requestFullscreen();
+    } else {
+      window.open(GEE_APP_URL, "_blank", "noopener");
+    }
+  } catch (error) {
+    window.open(GEE_APP_URL, "_blank", "noopener");
+  }
+});
+
+/* Reveal sections on scrolling */
+const revealObserver = new IntersectionObserver(function (entries) {
+  entries.forEach(function (entry) {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("visible");
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll(".reveal").forEach(function (element) {
+  revealObserver.observe(element);
+});
+
+/* Animate metric numbers */
+const numberObserver = new IntersectionObserver(function (entries) {
+  entries.forEach(function (entry) {
+    if (!entry.isIntersecting) return;
+
+    const element = entry.target;
+    const target = Number(element.dataset.target);
+    const decimals = Number(element.dataset.decimals || 0);
+    const start = performance.now();
+    const duration = 1200;
+
+    function animate(now) {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = target * eased;
+
+      element.textContent = current.toFixed(decimals) +
+        (decimals > 0 ? "%" : "");
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    }
+
+    requestAnimationFrame(animate);
+    numberObserver.unobserve(element);
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll(".count-up").forEach(function (element) {
+  numberObserver.observe(element);
+});
+
+/* Animate accuracy bars */
+const barObserver = new IntersectionObserver(function (entries) {
+  entries.forEach(function (entry) {
+    if (entry.isIntersecting) {
+      entry.target.style.width = entry.target.dataset.value + "%";
+      barObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll(".bar-fill").forEach(function (bar) {
+  barObserver.observe(bar);
+});
+
+/* Back-to-top button */
+const backTop = document.getElementById("backTop");
+
+window.addEventListener("scroll", function () {
+  backTop.classList.toggle("visible", window.scrollY > 450);
+});
+
+backTop.addEventListener("click", function () {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+</script>
+
+</body>
+</html>
